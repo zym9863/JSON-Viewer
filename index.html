@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern JSON Viewer</title>
+    <title>JSON Instrument</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="bg-grid"></div>
     <div class="app-container">
         <header class="app-header">
             <div class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-                <h1>JSON Viewer</h1>
+                <div class="logo-icon">
+                    <div class="logo-bracket">{ }</div>
+                </div>
+                <h1>JSON <span class="accent-text">INSTRUMENT</span></h1>
             </div>
             <div class="header-actions">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">READY</span>
+                </div>
                 <a href="https://github.com" target="_blank" class="github-link" aria-label="View on GitHub">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
                         <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                     </svg>
                 </a>
@@ -32,66 +36,68 @@
             <!-- Left Panel: Input -->
             <section class="panel input-panel">
                 <div class="panel-header">
-                    <h2>Input</h2>
+                    <div class="panel-title">
+                        <span class="panel-icon">01</span>
+                        <h2>INPUT_STREAM</h2>
+                    </div>
                     <div class="actions">
                         <button id="btn-sample" class="btn btn-ghost" title="Load Sample Data">
-                            <span class="icon">🎲</span> Sample
+                            LOAD SAMPLE
                         </button>
-                        <button id="btn-format" class="btn btn-primary" title="Format JSON">
-                            <span class="icon">✨</span> Format
-                        </button>
-                         <button id="btn-minify" class="btn btn-secondary" title="Minify JSON">
-                            <span class="icon">📦</span> Minify
-                        </button>
-                         <button id="btn-clear" class="btn btn-danger" title="Clear Input">
-                            <span class="icon">🗑️</span> Clear
+                        <button id="btn-clear" class="btn btn-danger" title="Clear Input">
+                            CLEAR
                         </button>
                     </div>
                 </div>
                 <div class="editor-container">
-                    <textarea id="json-input" placeholder="Paste your JSON here..." spellcheck="false"></textarea>
+                    <textarea id="json-input" placeholder="// PASTE JSON DATA HERE..." spellcheck="false"></textarea>
                     <div id="error-message" class="error-toast hidden"></div>
                 </div>
                 <div class="panel-footer">
-                    <span id="char-count">0 chars</span>
+                    <div class="footer-stat">
+                        <span class="label">LENGTH:</span>
+                        <span id="char-count" class="value">0</span>
+                    </div>
+                    <div class="footer-actions">
+                        <button id="btn-minify" class="btn btn-sm" title="Minify JSON">MINIFY</button>
+                        <button id="btn-format" class="btn btn-primary btn-sm" title="Format JSON">FORMAT</button>
+                    </div>
                 </div>
             </section>
 
             <!-- Right Panel: Viewer -->
             <section class="panel viewer-panel">
                 <div class="panel-header">
-                    <h2>Viewer</h2>
+                    <div class="panel-title">
+                        <span class="panel-icon">02</span>
+                        <h2>DATA_VIEWER</h2>
+                    </div>
                     <div class="search-box">
-                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" id="search-input" placeholder="Search keys or values...">
+                        <input type="text" id="search-input" placeholder="SEARCH NODES...">
                     </div>
-                    <div class="actions">
+                    <div class="actions icon-actions">
                         <button id="btn-expand" class="btn btn-icon" title="Expand All">
-                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
                         </button>
                         <button id="btn-collapse" class="btn btn-icon" title="Collapse All">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
                         </button>
                         <button id="btn-copy" class="btn btn-icon" title="Copy to Clipboard">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="0" ry="0"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         </button>
                     </div>
                 </div>
                 <div class="viewer-container">
                      <div id="json-viewer" class="json-tree"></div>
                      <div id="empty-state" class="empty-state">
-                        <div class="empty-icon">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="12" y1="18" x2="12" y2="12"></line>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                            </svg>
+                        <div class="empty-graphic">
+                            <div class="grid-animation"></div>
                         </div>
-                        <p>Waiting for JSON input...</p>
+                        <p>system // waiting_for_data</p>
                      </div>
                 </div>
             </section>

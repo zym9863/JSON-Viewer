@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('%c SYSTEM // INITIALIZED ', 'background: #00F0FF; color: #000; font-weight: bold; padding: 2px 4px;');
+
     // DOM Elements
     const jsonInput = document.getElementById('json-input');
     const jsonViewer = document.getElementById('json-viewer');
@@ -37,9 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideError();
             renderTree(parsed);
         } catch (e) {
-            // Only show error on explicit actions or if it was previously valid?
-            // For now, let's show error immediately but softly
-             showError(e.message);
+            showError(e.message);
         }
     }
 
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Header line: Key (opt) + Bracket + Count
             const header = document.createElement('div');
-            header.className = 'collapsible'; // Default expanded
+            header.className = 'collapsible'; // Default expanded (CSS handled)
             
             // Toggle Logic
             header.addEventListener('click', (e) => {
@@ -94,9 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!isEmpty) {
                 const countSpan = document.createElement('span');
-                countSpan.style.color = '#64748b';
-                countSpan.style.fontSize = '0.8em';
-                countSpan.style.marginLeft = '4px';
+                countSpan.className = 'json-count';
                 countSpan.textContent = isArray ? `${keys.length} items` : `${keys.length} keys`;
                 header.appendChild(countSpan);
             } else {
@@ -107,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 header.appendChild(bracketEnd);
                 header.classList.remove('collapsible'); // Remove pointer
                 
-                // If empty, we don't need content div, just return container with header
+                // If empty, return container with header only
                  container.appendChild(header);
                  return container;
             }
@@ -121,31 +119,20 @@ document.addEventListener('DOMContentLoaded', () => {
             keys.forEach((k, index) => {
                 const childNode = createNode(value[k], isArray ? null : k);
                 content.appendChild(childNode);
-                
-                // Add comma if not last
-                if (index < keys.length - 1) {
-                   // We need to append comma to the last text node of the child
-                   // This is a bit tricky with DOM structure. 
-                   // Simplification: Just append a comma div ? No, should be inline.
-                   // Let's add comma to the leaf nodes or logic above?
-                   // Easier: The 'childNode' is a div. We can append a comma to it.
-                   // But visual alignment... css pseudo?
-                }
             });
             
             // Closing Bracket
             const footer = document.createElement('div');
-            footer.className = 'json-bracket';
-            footer.style.paddingLeft = '20px';
+            footer.className = 'json-block-footer';
             footer.textContent = closeBracket;
             
-            content.appendChild(footer); // Add closing bracket to content so it hides too
+            content.appendChild(footer);
             container.appendChild(content);
 
         } else {
             // Primitive
             const line = document.createElement('div');
-            line.style.paddingLeft = '20px'; // Indent primitives
+            line.className = 'json-line';
 
             if (key) {
                 line.appendChild(createKey(key));
@@ -178,10 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showEmptyState() {
         emptyState.style.display = 'flex';
         jsonViewer.style.display = 'none';
+        charCount.textContent = '0';
     }
 
     function showError(msg) {
-        errorMessage.textContent = `Error: ${msg}`;
+        errorMessage.textContent = `ERROR: ${msg}`;
         errorMessage.classList.remove('hidden');
         // Auto hide after 5s
         setTimeout(hideError, 5000);
@@ -192,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCharCount(str) {
-        charCount.textContent = `${str.length} chars`;
+        charCount.textContent = str.length.toLocaleString();
     }
 
     // --- Event Listeners ---
@@ -211,19 +199,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sample Data
     btnSample.addEventListener('click', () => {
         const sample = {
-            "project": "JSON Viewer",
-            "version": 1.0,
-            "features": ["Tree View", "Syntax Highlighting", "Search", "Copy/Paste"],
-            "settings": {
-                "theme": "dark",
-                "autoParse": true
+            "system": "JSON_INSTRUMENT_V1",
+            "status": "ONLINE",
+            "modules": ["Viewer", "Parser", "Formatter"],
+            "config": {
+                "theme": "cyber_dark",
+                "auto_refresh": true,
+                "max_nodes": 5000
             },
-            "contributors": [
-                { "name": "Alice", "role": "Designer" },
-                { "name": "Bob", "role": "Developer" }
+            "data_stream": [
+                { "id": "0x1A", "value": 88.5, "flag": true },
+                { "id": "0x1B", "value": 42.0, "flag": false }
             ],
-            "active": true,
-            "stats": null
+            "meta": null
         };
         const str = JSON.stringify(sample, null, 2);
         jsonInput.value = str;
@@ -236,9 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = JSON.parse(jsonInput.value);
             jsonInput.value = JSON.stringify(val, null, 2);
             updateCharCount(jsonInput.value);
+            updateViewer(jsonInput.value);
             hideError();
+            blinkSuccess(btnFormat);
         } catch (e) {
-            showError("Invalid JSON, cannot format");
+            showError("INVALID JSON");
         }
     });
 
@@ -248,9 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = JSON.parse(jsonInput.value);
             jsonInput.value = JSON.stringify(val);
             updateCharCount(jsonInput.value);
+            updateViewer(jsonInput.value);
             hideError();
+            blinkSuccess(btnMinify);
         } catch (e) {
-            showError("Invalid JSON, cannot minify");
+            showError("INVALID JSON");
         }
     });
 
@@ -282,15 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!term) return;
 
         // Naive Text Search in DOM
-        // We search inside .json-key and .json-string/number/boolean
         const validClasses = ['.json-key', '.json-string', '.json-number', '.json-boolean'];
-        let found = false;
 
         validClasses.forEach(cls => {
             document.querySelectorAll(cls).forEach(el => {
                 if (el.textContent.toLowerCase().includes(term)) {
                     el.classList.add('highlight');
-                    found = true;
                     // Expand parents
                     let parent = el.closest('.collapsible-content');
                     while(parent) {
@@ -309,12 +298,24 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCopy.addEventListener('click', () => {
         if (!jsonInput.value) return;
         navigator.clipboard.writeText(jsonInput.value).then(() => {
-            // Visual feedback could be added here
             const originalIcon = btnCopy.innerHTML;
-            btnCopy.innerHTML = `<span style="color:var(--success-color)">✓</span>`;
+            btnCopy.style.color = 'var(--c-success)';
+            btnCopy.innerHTML = `<span style="font-weight:bold">✓</span>`;
             setTimeout(() => {
                 btnCopy.innerHTML = originalIcon;
-            }, 2000);
+                btnCopy.style.color = '';
+            }, 1000);
         });
     });
+
+    // Helper for visual feedback
+    function blinkSuccess(btn) {
+        const originalColor = btn.style.borderColor;
+        btn.style.borderColor = 'var(--c-success)';
+        btn.style.color = 'var(--c-success)';
+        setTimeout(() => {
+            btn.style.borderColor = originalColor;
+            btn.style.color = '';
+        }, 500);
+    }
 });
